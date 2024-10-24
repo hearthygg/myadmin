@@ -1,0 +1,43 @@
+image: node:latest
+
+stages:
+  - build
+  - deploy
+
+variables:
+  #REMOTE_SERVER_PATH: "/home/tttext"  # 每个项目中的远程路径都不同 项目中路径设置会覆盖全局路径中设置 gitlab-ci中变量设置权重小于网页中设置
+
+cache:
+  key: ${CI_COMMIT_REF_SLUG}
+  paths:
+    - node_modules/
+
+# 构建阶段
+build:
+  stage: build
+  tags:
+    - deploy # runner中定义的Tag  vim /etc/gitlab-runner/config.toml
+  script:
+    - npm install  # 安装项目依赖
+    - npm run build  # 构建项目
+    - echo "开始构建..."
+  only:
+    - master   # 仅在对应分支时运行
+  artifacts:
+    paths:
+      - dist/  # 打包后的文件位于 dist/ 目录下
+
+# 部署阶段
+deploy:
+  stage: deploy
+  tags:
+    - deploy
+  before_script:
+    # - apt-get update && apt-get install -y sshpass # 安装sshpass软件  执行特别慢 连续上传时可注销
+  script:
+    - echo "开始部署..."
+    # 使用 sshpass 登录到 Windows Server
+    # 使用 scp 命令推送打包文件到 Windows Server
+    - sshpass -p "$REMOTE_SERVER_PASSWORD" scp -r dist/* $REMOTE_SERVER_USERNAME@$REMOTE_SERVER_IP:"$REMOTE_SERVER_PATH"
+  only:
+    - master   # 仅在对应分支时运行

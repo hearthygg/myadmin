@@ -1,0 +1,24 @@
+// sidebar
+$menuText: #bfcbd9;
+$menuActiveText: #409eff;
+$subMenuActiveText: #f4f4f5;
+
+$menuBg: #374151;
+$menuHover: #111827;
+
+$subMenuBg: #374151;
+$subMenuHover: #111827;
+
+$sideBarWidth: 210px;
+
+// 这样导出的变量可以在js文件中使用
+:export {
+  menuText: $menuText;
+  menuActiveText: $menuActiveText;
+  subMenuActiveText: $subMenuActiveText;
+  menuBg: $menuBg;
+  menuHover: $menuHover;
+  subMenuBg: $subMenuBg;
+  subMenuHover: $subMenuHover;
+  sideBarWidth: $sideBarWidth;
+}

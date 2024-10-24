@@ -1,0 +1,4 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+# exec < /dev/tty && git log -1 --pretty=format:%s | grep -iqE 'feat|fix|perf|chore|docs|style|refactor|test' && conventional-changelog -p angular -i CHANGELOG.md -s
+npm run version

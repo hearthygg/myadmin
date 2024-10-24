@@ -1,0 +1,31 @@
+import { Entity, Column, ManyToOne, JoinColumn, PrimaryColumn } from 'typeorm';
+import { User } from './user.entity';
+import { Role } from './role.entity';
+
+/**
+ * 用户角色关联实体
+ */
+@Entity('UserRole')
+export class UserRole {
+  // 用户ID
+  @PrimaryColumn({ name: "UserID" })
+  userId!: number;
+
+  // 角色ID
+  @PrimaryColumn({ name: "RoleID" })
+  roleId!: number;
+
+  // 创建时间
+  @Column({ name: "CreatedAt",default: () => "CURRENT_TIMESTAMP" })
+  createTime!: Date;
+
+  // 定义 外键关联 用户
+  @ManyToOne(type => User, user => user.userRoles, { cascade: true, onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'UserID' })
+  user!: User;
+
+  // 关联角色
+  @ManyToOne(type => Role, role => role.userRoles, { cascade: true, onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'RoleID' })
+  role!: Role;
+}

@@ -1,0 +1,296 @@
+@import 'src/styles/variables.module';
+@import 'src/styles/element-plus';
+@import './sidebar.scss';
+@import './tailwind.scss';
+@import 'common/transition.scss';
+@import './mixin.scss';
+@import './app.scss';
+
+:root {
+  --sys-color-white: #FFFFFF;
+  --sys-color-gray-regular: #DBE7EE;
+  --sys-color-gray-light: #8291A9;
+  --sys-color-gray-darker: #161D26;
+  --sys-color-blue-link: #0081FF;
+  --sys-color-blue: #22CCE2;
+  --sys-color-green: #09B66D;
+  --sys-color-orange: #FF8A48;
+  --sys-color-yellow: #FDBF5E;
+  --sys-color-blue-gradient: linear-gradient(109deg, #0081FF 0%, #22CCE2 101%);
+  --sys-color-red-gradient: linear-gradient(109deg, #FF3D57 0%, #FF8A48 101%);
+  --sys-color-green-gradient: linear-gradient(109deg, #09B66D 0%, #22CCE2 101%);
+  --sys-color-orange-gradient: linear-gradient(109deg, #FF8A48 0%, #FDBF5E 101%);
+  --sys-color-gray-gradient: linear-gradient(270deg, #1F2935 0%, #425365 100%);
+  // 看板模式背景、文字颜色
+  --kanban-bg-color: #1D2B56;
+  --kanban-text-color: #0EFCFF;
+  --kanban-rect-color: #195fac;
+  // 设备在线状态模式
+  --kanban-dev-online-border:#122e1d;
+  --kanban-dev-online-bg:#65ffa360;
+  --kanban-dev-offline-border:#292c39;
+  --kanban-dev-offline-bg:#7E839B60;
+  --kanban-dev-maintain-border:#572929;
+  --kanban-dev-maintain-bg:#FF717160;
+}
+html,
+body,
+#app {
+  height: 100%;
+  @include scrollBar;
+}
+// 浮动相关
+.clean-box {
+  @include clearfix;
+}
+.float-left {
+  float: left;
+}
+.float-right {
+  float: right;
+}
+// main-container global css
+.app-container {
+  padding: 20px;
+}
+// 用于界面高度自适应
+.layout-pd {
+  padding: 10px !important;
+}
+.layout-flex {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+.layout-padding {
+  @extend .layout-pd;
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  @extend .layout-flex;
+  &-auto {
+    height: inherit;
+    @extend .layout-flex;
+  }
+  &-view {
+    background: var(--el-color-white);
+    width: 100%;
+    height: 100%;
+    border-radius: 10px;
+    border: 1px solid var(--el-border-color-light, #ebeef5);
+    overflow: hidden;
+  }
+}
+.search {
+  padding: 18px 0 0 10px;
+  margin-bottom: 10px;
+  border-radius: 5px;
+  border: 1px solid #ddd;
+  box-shadow: 6px 2px 6px #ccc;
+}
+
+svg {
+  display: inline-block;
+}
+/* 左右分布搜索表格样式 */
+.sys-container {
+  height: calc(100vh - 84px);
+  overflow: hidden;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  .table-container {
+    background-color: #f3f4f6;
+    padding: 10px;
+    height: calc(100vh - 84px);
+    box-shadow: 0 0 1px 1px var(--sys-color-gray-regular);
+
+    .table-search {
+      .table-total {
+        font-size: 20px;
+        font-weight: bold;
+        color: var(--el-text-color-regular);
+      }
+    }
+
+    .el-table {
+      border-radius: 12px;
+    }
+    .el-input__wrapper {
+      // border-radius: 7px;
+      background-color: #fafcfe;
+    }
+
+    .el-form {
+      .el-form-item {
+        width: 100%;
+        margin-right: 0;
+      }
+
+      .el-form-item__label {
+        font-weight: bold;
+      }
+    }
+  }
+  .changecolor {
+    .el-input__wrapper {
+      background-color: #f2f6fc;
+    }
+  }
+  .search-container {
+    background-color: var(--sys-color-white);
+    padding: 15px;
+    height: calc(100vh - 84px);
+    box-shadow: 0 0 1px 1px var(--sys-color-gray-regular);
+    .el-input__wrapper {
+      border-radius: 7px;
+      background-color: #fafcfe;
+    }
+
+    .el-form {
+      .el-form-item {
+        width: 100%;
+        margin-right: 0;
+      }
+
+      .el-form-item__label {
+        font-weight: bold;
+      }
+    }
+  }
+  .el-pagination {
+    .el-pagination__total {
+      font-weight: bold;
+    }
+    .btn-prev,
+    .btn-next {
+      border-radius: 7px;
+      font-weight: bold;
+    }
+    .el-pager {
+      .number {
+        border-radius: 7px;
+        font-weight: bold;
+      }
+    }
+  }
+}
+/* 全屏弹窗样式调整 */
+.fullDialog {
+  .el-dialog {
+    border-radius: 0 !important;
+    .el-dialog__header {
+      border-bottom: 1px solid var(--sys-color-gray-regular);
+    }
+    .el-dialog__body {
+      height: calc(100vh - 116px) !important;
+      max-height: none !important;
+      // overflow: hidden;
+      // background-color: #FAFCFE;
+    }
+    .el-dialog__footer {
+      height: 60px;
+      border-top: 1px solid var(--sys-color-gray-regular)
+    }
+  }
+}
+#dialog-nopadding {
+  .el-dialog__body {
+    padding: 0 !important;
+  }
+}
+/* el-card样式调整 */
+.mini-card {
+  .el-card__header {
+    padding: 15px 20px;
+  }
+}
+
+.hover:hover {
+  color: var(--el-color-primary);
+}
+
+.course-desc {
+  width: calc(100% - 14px);
+  height: 50px;
+  background: #61a0e8;
+  border-radius: 5px;
+  color: #fff;
+  font-size: 16px;
+  line-height: 50px;
+  padding: 0 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  .view-more {
+    cursor: pointer;
+    &:hover {
+      color: #283958;
+    }
+  }
+}
+.item-card {
+  border-radius: 10px !important;
+  height: 178px !important;
+  .el-card__header {
+    background-color: #eff6ff;
+    font-size: 16px;
+    font-weight: bold;
+    color: #6b7280;
+    padding: 10px 15px;
+  }
+  .el-card__body {
+    padding: 0;
+  }
+  .el-descriptions__label {
+    width: 80px;
+  }
+}
+.home-card {
+  .el-card__header {
+    padding: 12px 15px;
+  }
+  .el-card__body {
+    padding: 15px;
+  }
+}
+
+// 修改表格样式
+.el-table--striped .el-table__body tr.el-table__row--striped td.el-table__cell {
+  // background-color: #EBF5FF !important;
+  background-color: #FAFCFE !important;
+}
+// .el-table thead tr th {
+//   background-color: #99CCFF !important;
+//   color: #303133 !important;
+// }
+
+
+.el-dialog__title{
+  font-weight: bold;
+}
+
+// PX 转 rem
+@function px2Rem($px) {
+  $rem: 16px;
+  @return calc($px / $rem) * 1rem;
+}
+
+// iconfont多色图标样式
+.myIcon {
+  width: 1em; height: 1em;
+  vertical-align: -0.15em;
+  fill: currentColor;
+  overflow: hidden;
+}
+
+
+.textEllipsis{
+  white-space: nowrap; /* 防止文本换行 */
+  overflow: hidden; /* 隐藏超出容器的内容 */
+  text-overflow: ellipsis; /* 可选：在文本溢出时显示省略号 */
+}

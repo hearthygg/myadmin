@@ -1,0 +1,31 @@
+import { Entity, Column, ManyToOne, JoinColumn, PrimaryColumn } from 'typeorm';
+import { Permission } from './permission.entity';
+import { Role } from './role.entity';
+
+/**
+ * 角色权限关联实体
+ */
+@Entity('RolePermission')
+export class RolePermission {
+  // 权限ID
+  @PrimaryColumn({ name: 'PermissionID' })
+  permissionId!: number;
+
+  // 角色ID
+  @PrimaryColumn({ name: 'RoleID' })
+  roleId!: number;
+
+  // 创建时间
+  @Column({ name: "CreatedAt",default: () => "CURRENT_TIMESTAMP" })
+  createTime!: Date;
+
+  // 关联权限
+  @ManyToOne(type => Permission, permission => permission.rolePermissions, { cascade: true, onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'PermissionID' })
+  perssion!: Permission;
+
+  // 关联角色
+  @ManyToOne(type => Role, role => role.rolePermissions, { cascade: true, onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'RoleID' })
+  role!: Role;
+}
