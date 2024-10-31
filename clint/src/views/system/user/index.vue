@@ -112,7 +112,8 @@
         <el-row :gutter="15">
           <el-col class="mb-6" :span="12">
             <el-form-item label="用户头像：" prop="avatar">
-              <single-upload v-model="state.formData.avatar"></single-upload>
+              <!-- <single-upload v-model="state.formData.avatar"></single-upload> -->
+              <file-upload v-model="state.formData.avatar"></file-upload>
             </el-form-item>
           </el-col>
           <el-col class="mb-6" :span="12">
@@ -189,6 +190,7 @@ import { UserForm, UserQuery, UserTable } from '@/api/user/types';
 import { useSelectEnum } from '@/store/selectEnum';
 import { getSelectLabelByValue } from '@/utils/commonMethods';
 import SingleUpload from '@/components/Upload/SingleUpload.vue';
+import FileUpload from '@/components/Upload/fileUpload.vue';
 import { getAllRole } from '@/api/role';
 // 搜索表格表单对象
 const queryFormRef = ref(ElForm);

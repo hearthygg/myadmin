@@ -32,6 +32,11 @@ export default ({ mode }: ConfigEnv): UserConfig => {
           target: 'http://10.10.10.124:9527',
           changeOrigin: true,
           rewrite: path => path.replace(new RegExp('^' + env.VITE_APP_BASE_API), env.VITE_APP_BASE_API)
+        },
+        '/uploads': {
+          target: 'http://10.10.10.124:9527',
+          changeOrigin: true,
+          rewrite: path => path.replace(new RegExp('^' + '/uploads'), '/uploads')
         }
       }
     },

@@ -1,4 +1,7 @@
+import { get } from "@tools/env-config";
 import { SelectOption } from "../types/common";
+import multer from "multer";
+import path from "path";
 
 /**
  * 嵌套对象的数组去重
@@ -66,4 +69,59 @@ export const changeThreeData = (
     children:
       item.children && changeThreeData(item.children, valueKey, labelKey),
   }));
+};
+
+const maxFileSize = get("maxFileSize") as number;
+const fileTypeArray = get("fileTypeArray") as string[];
+
+/**
+ * 限制文件的大小和类型
+ */
+export const checkFileSizeAndType = (file: Express.Multer.File) => {
+  const fileSize = file.size / 1024 / 1024; // 转换为MB
+  if (fileSize > maxFileSize) {
+    return {
+      success: false,
+      message: `文件大小不能超过${maxFileSize}MB`,
+    };
+  }
+  if (!fileTypeArray.includes(file.mimetype)) {
+    return {
+      success: false,
+      message: `文件类型不正确，请上传${fileTypeArray.join(",")}类型`,
+    };
+  }
+  return {
+    success: true,
+  };
+};
+
+/**
+ * 单文件上传的配置项
+ */
+export const fileUploadOptions = {
+  storage: multer.diskStorage({
+    destination: function (req, file, cb) {
+      cb(null, path.join(__dirname, "../../public/uploads"));
+    },
+    //  3.2 存储名称
+    filename: function (req, file, cb) {
+      // 自定义图片名称
+      cb(null, Date.now() + "-" + file.originalname);
+    },
+  }),
+  // 文件类型限制
+  fileFilter: (req: any, file: Express.Multer.File, cb: any) => {
+    if (!fileTypeArray.includes(file.mimetype)) {
+      return cb(
+        new Error("文件类型不正确，请上传" + fileTypeArray.join(",") + "类型")
+      );
+    }
+    cb(null, true);
+  },
+  // 文件名长度和文件大小限制
+  limits: {
+    fieldNameSize: 255,
+    fileSize: 1024 * 1024 * maxFileSize,
+  },
 };

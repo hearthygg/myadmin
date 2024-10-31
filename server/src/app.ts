@@ -4,11 +4,15 @@ import path from "node:path";
 import express from "express";
 import { useExpressServer } from "routing-controllers";
 import { json, urlencoded } from "body-parser";
-import multer from "multer";
 import { initDataSource } from "@tools/data-source";
 import { authChecker } from "@utils/auth-checker";
+// import multer from "multer";
 // import swaggerJsdoc from "swagger-jsdoc";
 // import swaggerUi from "swagger-ui-express";
+
+// 配置 multer 存储
+// const storage = multer.memoryStorage();
+// const upload = multer({ storage: storage });
 async function init() {
   // 先等待数据库连接上
   await initDataSource();
@@ -20,8 +24,8 @@ async function init() {
   // 会在 request 对象上挂载 body 属性，包含解析后的数据。
   // 这个新的 body 对象包含 key-value 键值对，若设置 extended 为 true，则键值可以是任意数据类型，否则只能是字符串或数组。
   app.use(urlencoded({ extended: true }));
-  // 添加 multer 中间件
-  app.use(upload.array('files'));
+  // 添加文件上传中间件
+  // app.use("/upload", upload.single("file"));
   useExpressServer(app, {
     routePrefix: "/api", // 接口统一前缀
     controllers: [path.join(__dirname, "./controllers/*.controller.ts")],
@@ -45,21 +49,12 @@ async function init() {
   // const specs = swaggerJsdoc(options);
 
   // app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
-
+  // 配置静态文件中间件
+  // app.use("/static", express.static("public"));
+  app.use("/uploads", express.static("public/uploads"));
   app.listen(9527, () => {
     // console.log(`  App is running at http://localhost:9527\n`);
     console.log(`  App is running at http://10.10.10.124:9527\n`);
   });
 }
-// 配置 multer
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, "uploads/");
-  },
-  filename: function (req, file, cb) {
-    cb(null, file.fieldname + "-" + Date.now());
-  },
-});
-
-const upload = multer({ storage: storage });
 init();

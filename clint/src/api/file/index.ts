@@ -13,7 +13,7 @@ export function uploadFileApi(file: File): AxiosPromise<{
   const formData = new FormData();
   formData.append('file', file);
   return request({
-    url: '/lmsWeb/common/uploadFile',
+    url: '/common/uploadFile',
     method: 'post',
     data: formData,
     headers: {
