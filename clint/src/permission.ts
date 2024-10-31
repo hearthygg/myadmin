@@ -39,9 +39,8 @@ router.beforeEach(async (to, from, next) => {
           accessRoutes.forEach((route: any) => {
             router.addRoute(route);
           });
-          // // 获取所有的枚举类型
-          // await selectEnumStore.getAllSelectEnum()
-          // selectEnumStore.getAllEnumTypes()
+          // 获取所有的枚举类型
+          selectEnumStore.getAllEnumTypes()
           setTimeout(() => {
             if(isStudent()) {
               changeLayout('top')

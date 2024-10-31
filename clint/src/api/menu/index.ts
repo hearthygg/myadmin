@@ -6,7 +6,7 @@ import { MenuQuery, Menu, Resource, MenuForm, ClintRoute } from './types';
  */
 export function listRoutes(): AxiosPromise<ClintRoute[]> {
   return request({
-    url: '/auth/routes',
+    url: '/auth/user/routes',
     method: 'get'
   });
 }
@@ -16,9 +16,9 @@ export function listRoutes(): AxiosPromise<ClintRoute[]> {
  *
  * @param queryParams
  */
-export function listMenus(queryParams: MenuQuery): AxiosPromise<{ menus: Menu[] }> {
+export function listMenus(queryParams: MenuQuery): AxiosPromise<Menu[]> {
   return request({
-    url: '/lmsWeb/auth/menu/getAllMenus',
+    url: '/auth/menu/getAllMenus',
     method: 'get',
     params: queryParams
   });
@@ -27,9 +27,9 @@ export function listMenus(queryParams: MenuQuery): AxiosPromise<{ menus: Menu[] 
 /**
  * 获取菜单下拉树形列表
  */
-export function listMenuOptions(): AxiosPromise<{ menuOption: OptionType[] }> {
+export function listMenuOptions(): AxiosPromise<OptionType[]> {
   return request({
-    url: '/lmsWeb/auth/menu/menuOptions',
+    url: '/auth/menu/menuOptions',
     method: 'get'
   });
 }
@@ -62,7 +62,7 @@ export function getMenuDetail(menuId: number | undefined): AxiosPromise<{ menu: 
  */
 export function addMenu(data: MenuForm) {
   return request({
-    url: '/lmsWeb/auth/menu/saveMenu',
+    url: '/auth/menu/addMenu',
     method: 'post',
     data
   });
@@ -76,7 +76,7 @@ export function addMenu(data: MenuForm) {
  */
 export function updateMenu(data: MenuForm) {
   return request({
-    url: '/lmsWeb/auth/menu/updateMenu',
+    url: '/auth/menu/updateMenu',
     method: 'put',
     data: data
   });

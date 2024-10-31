@@ -41,7 +41,7 @@ export const useUserStore = defineStore('user', () => {
     return new Promise<UserInfo>((resolve, reject) => {
       getUserInfo()
         .then(({ data }) => {
-          const res = data
+          const res = data;
           if (!res) {
             return reject('Verification failed, please Login again.');
           }
@@ -54,7 +54,7 @@ export const useUserStore = defineStore('user', () => {
           perms.value = res.perms;
           ugroup.value = res.ugroup;
           userId.value = res.userId;
-          roleNames.value = res.roleNames
+          roleNames.value = res.roleNames;
           resolve(res);
         })
         .catch(error => {
@@ -66,15 +66,18 @@ export const useUserStore = defineStore('user', () => {
   // 注销
   function logout() {
     return new Promise<void>((resolve, reject) => {
-      logoutApi()
-        .then(() => {
-          resetRouter();
-          resetToken();
-          resolve();
-        })
-        .catch(error => {
-          reject(error);
-        });
+      // logoutApi()
+      //   .then(() => {
+      //     resetRouter();
+      //     resetToken();
+      //     resolve();
+      //   })
+      //   .catch(error => {
+      //     reject(error);
+      //   });
+      resetRouter();
+      resetToken();
+      resolve();
     });
   }
 
@@ -99,7 +102,7 @@ export const useUserStore = defineStore('user', () => {
     login,
     getInfo,
     logout,
-    resetToken,
+    resetToken
   };
 });
 

@@ -22,3 +22,10 @@ export interface CommonResponse<T> {
   message: string
   data?: T
 }
+
+// 树形选择器数据
+export interface SelectOption {
+  value: string | number;
+  label: string;
+  children?: SelectOption[];
+}

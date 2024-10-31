@@ -1,3 +1,5 @@
+import { SelectOption } from "../types/common";
+
 /**
  * 嵌套对象的数组去重
  * @param data
@@ -46,6 +48,22 @@ export const getTreeData = (
   };
 
   const tree = buildTree(rootPermissions);
-  
+
   return tree;
+};
+
+/**
+ * 将树形数据转换成 value lable的数据
+ */
+export const changeThreeData = (
+  data: any,
+  valueKey: string,
+  labelKey: string
+): SelectOption[] => {
+  return data.map((item: any) => ({
+    value: item[valueKey],
+    label: item[labelKey],
+    children:
+      item.children && changeThreeData(item.children, valueKey, labelKey),
+  }));
 };

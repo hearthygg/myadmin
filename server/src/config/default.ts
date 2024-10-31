@@ -15,6 +15,8 @@ const defaultEnvConfigs = {
   },
   // 用户重置密码
   resetPassword: 'password',
+  // 默认密码后缀  默认密码：账号+后缀
+  defaultPasswordSuffix: '@xyz',
   // 初始用户
   initUser: {
     username: 'superAdmin',

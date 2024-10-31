@@ -6,15 +6,8 @@ export interface LoginBody {
   password: string;
 }
 
-export interface UserBaseInfo {
-  /**用户id */
-  userId: number;
-  /**昵称 */
-  nickname: string;
-  /**角色 */
-  roles: string[];
-}
 
+// 个人路由表
 export interface ClintRoute {
   /**权限ID */
   permissionId: number;
@@ -27,7 +20,7 @@ export interface ClintRoute {
   /**重定向路径 */
   redirect?: string;
   /**路由元信息 */
-  meta: {
+  meta?: {
     /**标题 */
     title: string;
     /**图标 */
@@ -39,3 +32,28 @@ export interface ClintRoute {
   };
   children?: ClintRoute[];
 }
+
+// 菜单表
+export interface Menu {
+  /**权限ID */
+  permissionId?: number;
+  /**权限名称 */
+  permissionName: string;
+  /**路径 */
+  path: string;
+  /**权限类型 */
+  permissionType: number;
+  /**图标 */
+  icon: string | null;
+  /**是否隐藏 */
+  hidden: boolean;
+  /**组件路径或名称 */
+  component: string;
+  /**父权限ID */
+  parentPermissionId: number | null;
+  sort: number;
+  /**重定向路径 */
+  redirect?: string;
+  children?: Menu[];
+}
+

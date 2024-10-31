@@ -2,9 +2,9 @@
  * 菜单查询参数类型声明
  */
 export interface MenuQuery {
-  keywords?: string;
-  visible?: number;
-  type?: number;
+  permissionName?: string;
+  hidden?: boolean;
+  permissionType?: number;
 }
 
 /**
@@ -56,24 +56,24 @@ export interface MenuForm {
   /**
    * 菜单ID
    */
-  menuId?: number;
+  permissionId?: number;
   /**
    * 父菜单ID
    */
-  parentId: number;
+  parentPermissionId: number;
   /**
    * 菜单名称
    */
-  menuName: string;
+  permissionName: string;
   /**
    * 菜单是否可见(1:否;0:是;)
    */
-  visible: number;
+  hidden: number;
   icon?: string;
   /**
    * 排序
    */
-  orderNum: number;
+  sort: number;
   /**
    * 组件路径
    */
@@ -85,12 +85,12 @@ export interface MenuForm {
   /**
    * 跳转路由路径
    */
-  redirectUrl?: string;
+  redirect?: string;
 
   /**
    * 菜单类型 (1:目录；2:菜单；3:外链；4:按钮)
    */
-  type: number;
+  permissionType: number;
 
   /**
    * 权限标识

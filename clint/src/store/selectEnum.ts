@@ -34,9 +34,9 @@ export const useSelectEnum = defineStore('selectEnum', {
     },
     // 获取枚举类型
     getAllEnumTypes() {
-      getExamEnmuTypes().then(({ data }) => {
-        this.examEnumTypes = data;
-      });
+      // getExamEnmuTypes().then(({ data }) => {
+      //   this.examEnumTypes = data;
+      // });
       getBussinerEnmuTypes().then(({ data }) => {
         this.businessEnumTypes = data;
       });

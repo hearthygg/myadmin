@@ -11,7 +11,8 @@ import {
 @Interceptor()
 export class ResponseGlobalInterceptor implements InterceptorInterface {
   intercept(action: Action, content: any) {
-    console.log('🚀 ~ ResponseGlobalInterceptor ~ intercept:', content)
+    // 这里可以全局拦截器可以获取到control响应值
+    // console.log('🚀 ~ ResponseGlobalInterceptor ~ intercept:', content)
     if (content instanceof Error)
       return error(`${content.name}: ${content.message}`)
     if (!content.code) return success(content)

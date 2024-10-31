@@ -41,6 +41,7 @@ export interface RoleForm {
   //  */
   // dataScope: number;
   roleId?: number;
-  roleCode: string;
+  remark: string;
   roleName: string;
+  description?: string;
 }

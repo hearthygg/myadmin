@@ -1,9 +1,32 @@
 <template>
   <div class="sys-container">
-    <el-row class="w-full">
+    <el-row>
       <el-col :span="4">
         <div class="search-container">
-          <TableSearch :search="state.tableData.search" @search="onSearch" />
+          <el-form @keyup.enter="handleQuery" ref="queryFormRef" class="searchForm" :model="state.queryParams" :inline="true" label-position="top">
+            <div class="mb-2 w-full text-center text-xl font-bold text-gray-600">条件查询</div>
+            <el-form-item label="用户账号" prop="username">
+              <el-input v-model="state.queryParams.username" placeholder="用户账号" />
+            </el-form-item>
+            <el-form-item label="用户昵称" prop="nickname">
+              <el-input v-model="state.queryParams.nickname" placeholder="用户昵称" />
+            </el-form-item>
+            <el-form-item label="用户性别" prop="sex">
+              <el-select v-model="state.queryParams.sex" placeholder="请选择" clearable>
+                <el-option v-for="item in selectEnum.businessEnumTypes.sexOptions" :key="item.value" :value="item.value" :label="item.label" />
+              </el-select>
+            </el-form-item>
+            <el-row :sm="24" :md="12" :lg="12" class="mb20 mr10">
+              <el-col
+                ><el-button class="searchbtn" type="primary" @click="handleQuery"><i class="iconfont icon-sousuo"></i>搜索</el-button></el-col
+              >
+            </el-row>
+            <el-row :sm="24" :md="12" :lg="12" class="mb20">
+              <el-col
+                ><el-button class="resetbtn" type="info" @click="resetQuery"><i class="iconfont icon-zhongzhi"></i>重置</el-button></el-col
+              >
+            </el-row>
+          </el-form>
         </div>
       </el-col>
       <el-col :span="20">
@@ -12,324 +35,322 @@
             <div class="table-total">用户管理</div>
             <div class="flex justify-between items-center">
               <!-- 引导页面 -->
-              <!-- <guide-btn class="helpbtn" :guideArr="state.guideArr"></guide-btn> -->
-              <el-button v-has-role="['admin']" class="importbtn" type="warning" @click="openBatchImport"><i class="iconfont icon-daoru"></i>批量导入</el-button>
-              <el-button v-has-role="['admin']" class="addbtn" type="success" @click="handlerAdd"><i class="iconfont icon-xinzeng"></i>新增</el-button>
+              <guide-btn class="helpbtn" :guideArr="state.guideArr"></guide-btn>
+              <el-button class="addbtn" type="success" @click="handleAdd"><i class="iconfont icon-xinzeng"></i>新增</el-button>
             </div>
           </div>
-          <Table
-            currentPath="user"
-            @tableBtnClick="tableBtnClick"
-            ref="tableRef"
-            v-bind="state.tableData"
-            class="table-demo"
-            @handlerEdit="handlerEdit"
-            @delRow="onTableDelRow"
-            @pageChange="onTablePageChange"
-            @sortHeader="onSortHeader"
-            @deleteAll="deleteAll"
-          />
+          <el-table
+            class="tablearea"
+            ref="dataTableRef"
+            v-loading="state.loading"
+            :data="state.userList"
+            height="calc(100vh - 232px)"
+            :header-cell-style="{ background: '#EBF5FF', color: '#606266' }"
+            :stripe="true"
+            :border="true"
+            @selection-change="handleSelectionChange"
+            highlight-current-row
+            row-key="lessonId"
+          >
+            <!-- reserve-selection分页刷新数据之后是否保留勾选数据 -->
+            <el-table-column type="selection" width="55" :align="'center'" :reserve-selection="true" />
+            <el-table-column type="index" label="序号" width="55" :align="'center'" />
+            <el-table-column label="用户账号" prop="username" show-overflow-tooltip :align="'center'" />
+            <el-table-column label="用户昵称" prop="nickname" show-overflow-tooltip :align="'center'" />
+            <el-table-column label="用户性别" prop="sex" show-overflow-tooltip :align="'center'">
+              <template #default="scope">
+                <el-tag v-if="scope.row.sex === selectEnum.businessEnumTypes.sexOptions[0].value" type="warning">{{ getSelectLabelByValue(selectEnum.businessEnumTypes.sexOptions, scope.row.sex) }}</el-tag>
+                <el-tag v-else-if="scope.row.sex === selectEnum.businessEnumTypes.sexOptions[1].value" type="success">{{ getSelectLabelByValue(selectEnum.businessEnumTypes.sexOptions, scope.row.sex) }}</el-tag>
+                <el-tag v-if="scope.row.sex === selectEnum.businessEnumTypes.sexOptions[2].value" type="info">{{ getSelectLabelByValue(selectEnum.businessEnumTypes.sexOptions, scope.row.sex) }}</el-tag>
+              </template>
+            </el-table-column>
+            <el-table-column label="用户邮箱" prop="email" show-overflow-tooltip :align="'center'">
+              <template #default="scope">
+                <span v-if="scope.row.email">{{ scope.row.email }}</span>
+                <el-tag type="info" v-else>暂无数据</el-tag>
+              </template>
+            </el-table-column>
+            <el-table-column label="手机号码" prop="telPhone" show-overflow-tooltip :align="'center'">
+              <template #default="scope">
+                <span v-if="scope.row.telPhone">{{ scope.row.telPhone }}</span>
+                <el-tag type="info" v-else>暂无数据</el-tag>
+              </template>
+            </el-table-column>
+            <el-table-column label="操作" width="220" :align="'center'">
+              <template #default="scope">
+                <el-button type="primary" link @click.stop="handlePreview(scope.row)"> <i class="iconfont icon-shujuyulan"></i>预览 </el-button>
+                <el-button type="primary" link @click.stop="handleUpdate(scope.row)"> <i class="iconfont icon-bianji"></i>编辑 </el-button>
+                <el-button type="danger" link @click.stop="handleDelete(scope.row)"> <i class="iconfont icon-shanchu"></i>删除 </el-button>
+              </template>
+            </el-table-column>
+            <template #empty>
+              <el-empty description="暂无数据" />
+            </template>
+          </el-table>
+          <div class="paginationarea mt-2 bg-white rounded-lg p-3.5 flex justify-between items-center">
+            <el-pagination
+              v-model:current-page="state.queryParams.pageNum"
+              v-model:page-size="state.queryParams.pageSize"
+              :pager-count="5"
+              :page-sizes="[10, 20, 30]"
+              :total="state.total"
+              layout="total, sizes, prev, pager, next, jumper"
+              background
+              @size-change="handleQuery"
+              @current-change="handleQuery"
+            >
+            </el-pagination>
+            <el-button class="deletebtn" type="danger" :disabled="state.ids.length === 0" @click="handleDelete()"> <i class="iconfont icon-shanchu"></i>批量删除 </el-button>
+          </div>
         </div>
       </el-col>
     </el-row>
-    <OperateDialog width="800px" :dialog="state.tableData.dialogForm" ref="dialogRef" @refresh="dialogOperate" @searchCardRecord="searchCardRecord" />
-    <el-dialog v-model="dialog.isShowDialog" :title="dialog.title" width="900px">
-      <el-form :model="dialog.searchForm" ref="dialogFormRef" label-width="90px">
-        <el-row>
-          <el-col :span="8" class="mb20">
-            <el-form-item label="读卡器名称">
-              <el-input v-model="dialog.searchForm.name" placeholder="读卡器名称"></el-input>
+
+    <!-- dialog -->
+    <el-dialog :title="state.dialog.title" v-model="state.dialog.visible" width="1000px" destroy-on-close @close="closeDialog">
+      <el-form ref="dataFormRef" :model="state.formData" :rules="state.rules" label-width="95px" label-position="left">
+        <el-row :gutter="15">
+          <el-col class="mb-6" :span="12">
+            <el-form-item label="用户头像：" prop="avatar">
+              <single-upload v-model="state.formData.avatar"></single-upload>
             </el-form-item>
           </el-col>
-          <el-col :span="8">
-            <el-form-item label="开始时间">
-              <el-date-picker v-model="dialog.searchForm.startTime" type="date" value-format="x" placeholder="开始时间" />
+          <el-col class="mb-6" :span="12">
+            <el-form-item label="用户角色：" prop="roleRemarks">
+              <el-checkbox-group v-model="state.formData.roleRemarks" placeholder="请选择角色">
+                <el-checkbox v-for="item in state.roleOptions" :key="item.value" :label="item.value">{{ item.label }}</el-checkbox>
+              </el-checkbox-group>
             </el-form-item>
           </el-col>
-          <el-col :span="8">
-            <el-form-item label="结束时间">
-              <el-date-picker v-model="dialog.searchForm.endTime" type="date" value-format="x" placeholder="结束时间" />
+          <el-col :span="12">
+            <el-form-item label="用户昵称：" prop="nickname">
+              <el-input v-model="state.formData.nickname" placeholder="请输入用户昵称" />
             </el-form-item>
           </el-col>
-          <el-col :span="8" class="mb20 ml10">
-            <el-button type="info" @click="resetQuery"><i class="iconfont icon-icon-refresh"></i>重置</el-button>
-            <el-button type="primary" @click="queryDialogTable"><i class="iconfont icon-sousuo"></i>查询</el-button>
+          <el-col class="mb-6" :span="12">
+            <el-form-item label="用户账号：" prop="username">
+              <el-input :disabled="state.formData.userId" v-model="state.formData.username" placeholder="请输入用户账号" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="用户邮箱：" prop="email">
+              <el-input :disabled="state.formData.userId" v-model="state.formData.email" placeholder="请输入用户邮箱" />
+            </el-form-item>
+          </el-col>
+          <el-col class="mb-6" :span="12">
+            <el-form-item label="电话号码：" prop="telPhone">
+              <el-input v-model="state.formData.telPhone" placeholder="请输入电话号码" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="用户性别：" prop="sex">
+              <el-select v-model="state.formData.sex" placeholder="请选择性别" clearable>
+                <el-option v-for="item in selectEnum.businessEnumTypes.sexOptions" :key="item.value" :value="item.value" :label="item.label" />
+              </el-select>
+            </el-form-item>
           </el-col>
         </el-row>
       </el-form>
-      <el-table :data="dialog.tableData.data" height="480px" :border="true" :header-cell-style="{ background: '#F2F6FC' }" stripe v-loading="dialog.tableData.loading">
-        <el-table-column type="index" :align="'center'" label="序号" width="60" />
-        <el-table-column label="卡号" prop="cardId" />
-        <el-table-column label="最后读卡器名称" prop="cardName" />
-        <el-table-column label="最后读卡时间" prop="endTime" />
-        <el-table-column label="操作" width="100" :align="'center'">
-          <el-button text type="danger"><i class="iconfont icon-shanchu"></i>删除</el-button>
-        </el-table-column>
-        <template #empty>
-          <el-empty description="暂无数据" />
-        </template>
-      </el-table>
-      <pagination v-if="dialog.tableData.total > 0" :total="dialog.tableData.total" v-model:page="dialog.tableData.pageNum" v-model:limit="dialog.tableData.pageSize" @pagination="queryDialogTable" />
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button type="primary" @click="handleSubmit"><i class="iconfont icon-queding"></i>确定</el-button>
+          <el-button @click="closeDialog"><i class="iconfont icon-quxiao"></i>取消</el-button>
+        </div>
+      </template>
     </el-dialog>
-    <BatchImport type="user" @queryTableData="getTableData" ref="importExcelRef" />
+
+    <!-- 预览弹窗 -->
+    <el-dialog :title="state.viewDialog.title" v-model="state.viewDialog.visible" destroy-on-close width="1200px">
+      <div class="mb-2 w-full text-center text-2xl font-bold text-gray-600">{{ state.formData.noticeTitle }}</div>
+      <div class="mb-2 w-full text-lg font-bold flex justify-between items-center">
+        <span><i class="iconfont icon-denglu-yonghuming text-blue-500"></i> 发布人：测试教师1</span>
+        <span><i class="iconfont icon-shijian text-blue-500"></i> 发布时间：2024-10-10 10:46:54</span>
+      </div>
+      <div class="mb-2 text-lg text-gray-600" v-html="state.formData.noticeContent"></div>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button @click="state.viewDialog.visible = false"><i class="iconfont icon-quxiao"></i>关闭</el-button>
+        </div>
+      </template>
+    </el-dialog>
   </div>
 </template>
-
-<script setup lang="ts" name="makeTableDemo">
-// api
-import { listUserPages, addUser, getUserForm, updateUser, deleteUsers, resetUserPassword } from '@/api/user';
-import { UserQuery, UserTable } from '@/api/user/types';
-import { getAllDept } from '@/api/dept';
-import { getAllClass } from '@/api/class';
-import { getAllRole } from '@/api/role';
-import { defineAsyncComponent, reactive, ref, onMounted } from 'vue';
-import { ElMessage } from 'element-plus';
+<script setup lang="ts">
+import { onMounted, reactive, ref } from 'vue';
+import { ElForm, ElMessage, ElMessageBox, ElTable } from 'element-plus';
+import { Step } from 'intro.js';
+import GuideBtn from '@/components/Guide/index.vue';
+import { getGuideData } from '@/components/Guide/guideData';
+import Editor from '@/components/WangEditor/index.vue';
+import { getNoticeListApi, getNoticeDetailApi, addNoticeApi, UpdateNoticeApi, deleteNoticesApi } from '@/api/notice';
+import { NoticeListQuery, NoticeList, NoticeInfo } from '@/api/notice/types';
+import { addUser, getUserForm, getUserPagesApi, updateUser } from '@/api/user';
+import { UserForm, UserQuery, UserTable } from '@/api/user/types';
 import { useSelectEnum } from '@/store/selectEnum';
-import BatchImport from '@/components/BatchImport/index.vue';
+import { getSelectLabelByValue } from '@/utils/commonMethods';
+import SingleUpload from '@/components/Upload/SingleUpload.vue';
+import { getAllRole } from '@/api/role';
+// 搜索表格表单对象
+const queryFormRef = ref(ElForm);
+// 添加/编辑表单对象
+const dataFormRef = ref(ElForm);
+const dataTableRef = ref(ElTable);
 const selectEnum = useSelectEnum();
-// 引入组件
-const Table = defineAsyncComponent(() => import('@/components/Table/index.vue'));
-const TableSearch = defineAsyncComponent(() => import('@/components/Table/search.vue'));
-const OperateDialog = defineAsyncComponent(() => import('@/components/Table/dialog.vue'));
-// 定义变量内容
-const tableRef = ref<RefType>();
-// 获取模态框对象
-const dialogRef = ref();
-const dialogFormRef = ref();
-const importExcelRef = ref(BatchImport);
-// 表格配置数据
-const state = reactive<TableDemoState<UserQuery, UserTable>>({
-  tableData: {
-    // 列表数据（必传）
-    data: [],
-    // 配置项（必传）表格样式配置
-    config: {
-      total: 0, // 列表总数
-      loading: true, // loading 加载
-      isBorder: true, // 是否显示表格边框
-      isSerialNo: true, // 是否显示表格序号
-      isSelection: true, // 是否显示表格多选
-      isOperate: true, // 是否显示表格操作栏
-      operateBtn: ['reset', 'edit', 'delete'], //展示操作栏有哪些按钮 edit: 编辑, delete: 删除, view: 预览, reset: 重置密码
-      operateWidth: '210', //操作栏的宽度
-      rowId: 'userId' //表格项id
-    },
-
-    /*---表格数据不同---*/
-    // 表头内容（必传，注意格式）设置表格具体展示什么内容
-    header: [
-      { key: 'userName', colWidth: '', title: '用户账号', type: 'text', isCheck: true },
-      { key: 'nickName', colWidth: '', title: '用户名称', type: 'text', isCheck: true },
-      { key: 'cardID', colWidth: '', title: '校园卡号', type: 'text', isCheck: true },
-      { key: 'uid', colWidth: '', title: '用户编号', type: 'text', isCheck: true },
-      { key: 'deptName', colWidth: '', title: '所属部门', type: 'text', isCheck: true },
-      { key: 'claName', colWidth: '', title: '所在班级', type: 'text', isCheck: true }
-    ],
-    // 搜索表单，动态生成（传空数组时，将不显示搜索，注意格式） 设置搜索框表单内容
-    search: [
-      { prop: 'nickName', label: '用户名称', placeholder: '用户名称', required: false, type: 'input' },
-      { prop: 'userName', label: '用户账号', placeholder: '用户账号', required: false, type: 'input' },
-      { prop: 'ugroup', label: '用户类别', placeholder: '用户类别', required: false, type: 'select', options: selectEnum.businessEnumTypes.userGroupOptions },
-      { prop: 'deptId', label: '所属部门', placeholder: '所属部门', required: false, type: 'select', options: [] },
-      { prop: 'claId', label: '所在班级', placeholder: '所在班级', required: false, type: 'select', options: [] }
-    ],
-    // 新增或者编辑弹框数据设置 有的选择器的数据要先从后台获取 设置模态框表单样式
-    dialogForm: [
-      { prop: 'avatar', label: '用户头像', placeholder: '用户头像', required: false, type: 'img' },
-      { prop: 'roleIds', label: '用户角色', placeholder: '用户角色', required: true, type: 'selectAll', options: [] },
-      { prop: 'nickName', label: '用户名称', placeholder: '用户名称', required: true, type: 'input' },
-      { prop: 'userName', label: '用户账号', placeholder: '用户账号', required: true, type: 'input', state: 'add' },
-      // { prop: 'newPassword', label: '用户密码', placeholder: '用户密码', required: true, type: 'password', state: 'add' },
-      // { prop: 'confirmNewPassword', label: '确认密码', placeholder: '确认密码', required: true, type: 'password', state: 'add' },
-      { prop: 'deptId', label: '所属部门', placeholder: '所属部门', required: true, type: 'select', options: [] },
-      { prop: 'claId', label: '所在班级', placeholder: '所在班级', required: true, type: 'select', options: [] },
-      { prop: 'uid', label: '用户编号', placeholder: '用户编号', required: true, type: 'input' },
-      { prop: 'ugroup', label: '用户类别', placeholder: '用户类别', required: true, type: 'select', options: selectEnum.businessEnumTypes.userGroupOptions },
-      { prop: 'sex', label: '用户性别', placeholder: '用户性别', required: false, type: 'select', options: selectEnum.businessEnumTypes.genderOptions },
-      { prop: 'cardID', label: '校园卡号', placeholder: '校园卡号', required: false, type: 'input', options: [] },
-      { prop: 'tel', label: '用户电话', placeholder: '用户电话', required: false, type: 'input' },
-      { prop: 'birthday', label: '用户生日', placeholder: '用户生日', required: false, type: 'date' }
-    ],
-    /*---表格数据不同---*/
-
-    // 搜索参数（不用传，用于分页、搜索时传给后台的值，`getTableData` 中使用）
-    param: {
-      pageNum: 1,
-      pageSize: 10
-    }
-  }
-});
-// 查询刷卡记录弹框相关数据
-const dialog = reactive<any>({
-  isShowDialog: false,
-  title: '查询刷卡记录',
-  currentCardId: '',
-  searchForm: {
-    name: '',
-    startTime: '',
-    endTime: ''
-  },
-  tableData: {
-    data: [],
-    loading: false,
-    total: 0,
+// 响应式数据
+const state = reactive({
+  // 表格刷新动画
+  loading: true,
+  // 查询条件
+  queryParams: {
     pageNum: 1,
     pageSize: 10
-  }
+  } as UserQuery,
+  // 表格数据
+  userList: [] as UserTable[],
+  // 总数
+  total: 0,
+  // 表格多选
+  ids: [] as number[],
+  // 增加/编辑弹框状态
+  dialog: {
+    title: '',
+    visible: false
+  } as DialogType,
+  viewDialog: {
+    title: '',
+    visible: false
+  } as DialogType,
+  // 增加/编辑表单
+  formData: {} as UserForm,
+  // 增加/编辑表单校验规则
+  rules: {
+    username: [{ required: true, message: '请输入用户账号', trigger: 'blur' }],
+    nickname: [{ required: true, message: '请输入用户昵称', trigger: 'blur' }]
+  },
+  // 引导页相关数据
+  guideArr: [] as Step[],
+  // 角色选择器数据
+  roleOptions: [] as SelectOptionType[]
 });
-/*---增删改查调用的api不同 ---*/
-// 初始化列表数据
-const getTableData = () => {
-  state.tableData.config.loading = true;
-  state.tableData.data = [];
-  listUserPages(state.tableData.param)
-    .then(({ data }) => {
-      state.tableData.data = data.userList as any;
-      state.tableData.config.total = data.total;
-      state.tableData.config.loading = false;
+
+/**
+ * 查询
+ */
+function handleQuery() {
+  state.loading = true;
+  getUserPagesApi(state.queryParams).then(({ data }) => {
+    state.userList = data.list;
+    state.total = data.total;
+    state.loading = false;
+  });
+}
+/**
+ * 重置查询
+ */
+function resetQuery() {
+  // 恢复查询表单默认值
+  queryFormRef.value.resetFields();
+  handleQuery();
+  clearSelection();
+}
+/**
+ * 表格勾选帅选数据
+ */
+function handleSelectionChange(selection: UserTable[]) {
+  state.ids = selection.map((item: UserTable) => item.userId) as number[];
+}
+/**
+ * 新增点击
+ */
+function handleAdd() {
+  state.dialog = {
+    title: '添加用户',
+    visible: true
+  };
+}
+/**
+ * 编辑点击
+ */
+function handleUpdate(row: UserTable) {
+  state.dialog = {
+    title: '修改用户',
+    visible: true
+  };
+  getUserForm(row.userId as number).then(({ data }) => {
+    state.formData = data;
+  });
+}
+/**预览点击 */
+function handlePreview(row: UserTable) {
+  state.viewDialog = {
+    title: '预览用户',
+    visible: true
+  };
+  getNoticeDetailApi(row.noticeId as number).then(({ data }) => {
+    state.formData = data;
+  });
+}
+/**
+ * 新增/编辑操作
+ */
+function handleSubmit() {
+  dataFormRef.value.validate((valid: any) => {
+    if (valid) {
+      if (state.formData.userId) {
+        updateUser(state.formData).then(() => {
+          ElMessage.success('修改成功');
+          closeDialog();
+          handleQuery();
+        });
+      } else {
+        addUser(state.formData).then(() => {
+          ElMessage.success('新增成功');
+          closeDialog();
+          handleQuery();
+        });
+      }
+    }
+  });
+}
+/**
+ * 取消
+ */
+function closeDialog() {
+  state.dialog.visible = false;
+  dataFormRef.value.resetFields();
+  state.formData = {} as UserForm;
+}
+/**
+ *  删除/批量删除
+ */
+function handleDelete(row: UserTable = {} as UserTable) {
+  const ids = row.noticeId ? [row.noticeId] : [...state.ids];
+  ElMessageBox.confirm('确认删除已选中的数据项?', '警告', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning'
+  })
+    .then(() => {
+      deleteNoticesApi(ids).then(() => {
+        ElMessage.success('删除成功');
+        handleQuery();
+        clearSelection();
+      });
     })
-    .catch(() => (state.tableData.config.loading = false));
-};
-// 初始化选择器数据
-const getSelectOptionsData = () => {
-  // 获取部门数据
-  getAllDept().then(res => {
-    state.tableData.dialogForm.map((i: TableSearchType) => {
-      if (i.prop === 'deptId') i.options = res.data.deptOptions;
-    });
-    state.tableData.search.map((i: TableSearchType) => {
-      if (i.prop === 'deptId') i.options = res.data.deptOptions;
-    });
-  });
-  // 获取班级数据
-  getAllClass().then(res => {
-    state.tableData.dialogForm.map((i: TableSearchType) => {
-      if (i.prop === 'claId') i.options = res.data.claOptions;
-    });
-    state.tableData.search.map((i: TableSearchType) => {
-      if (i.prop === 'claId') i.options = res.data.claOptions;
-    });
-  });
-  // 获取角色数据
-  getAllRole().then(res => {
-    state.tableData.dialogForm.map((i: TableSearchType) => {
-      if (i.prop === 'roleIds') i.options = res.data.roleOptions;
-    });
-  });
-};
-// 模态框编辑还是新增操作 调用相应的api
-const dialogOperate = (type: 'edit' | 'add', data: any) => {
-  if (type === 'edit') {
-    // 提交编辑操作
-    updateUser(data).then(() => {
-      ElMessage.success('编辑数据成功！');
-      dialogRef.value.closeDialog();
-      getTableData();
-    });
-  } else if (type === 'add') {
-    // 提交新增
-    addUser(data).then(() => {
-      ElMessage.success('新增数据成功！');
-      dialogRef.value.closeDialog();
-      getTableData();
-    });
-  }
-};
-// 删除当前项回调
-const onTableDelRow = (row: UserTable) => {
-  deleteUsers([row[state.tableData.config.rowId]]).then(() => {
-    ElMessage.success(`删除${row.nickName}成功！`);
-    getTableData();
-  });
-};
-// 批量删除旋转的表格数据
-const deleteAll = (rows: Array<UserTable>) => {
-  let ids: Array<string> = [];
-  rows.map((i: UserTable) => ids.push(i[state.tableData.config.rowId]));
-  // let idStr = ids.join(',');
-  // console.log(ids);
-  deleteUsers(ids).then(() => {
-    ElMessage.success('批量删除数据成功');
-    tableRef.value.clearSelection();
-    getTableData();
-  });
-};
-// 编辑点击时表单回调
-const handlerEdit = (row: UserTable) => {
-  getUserForm(row[state.tableData.config.rowId]).then(res => {
-    dialogRef.value.openDialog('edit', res.data.user);
-  });
-};
-// 外加功能
-const tableBtnClick = (type: string, row: UserTable) => {
-  if (type === 'view') {
-    console.log('预览数据', row);
-  } else if (type === 'reset') {
-    resetUserPassword(row.userId).then(() => {
-      ElMessage.success(`重置用户：${row.nickName}的密码成功！`);
-    });
-  }
-};
-// 打开刷卡记录弹框
-const searchCardRecord = (data: string) => {
-  if (data == '') return ElMessage.error('请输入校园卡号!');
-  dialog.isShowDialog = true;
-  dialog.cardID = data;
-  queryDialogTable();
-};
-// 查询刷卡记录
-const queryDialogTable = () => {
-  // dialog.tableData.loading = true;
-  dialog.tableData.data = [];
-  // listUserPages(state.tableData.param).then(({ data }) => {
-  //   dialog.tableData.data = data.userList as any;
-  //   dialog.tableData.total = data.total;
-  //   dialog.tableData.loading = false;
-  // });
-  for (let i = 0; i < 15; i++) {
-    dialog.tableData.data.push({
-      cardId: '#12456893',
-      cardName: 'xxx',
-      endTime: '2023-3-20'
-    });
-  }
-  dialog.tableData.total = 15;
-};
-// 重置查询
-const resetQuery = () => {
-  dialogFormRef.value.resetFields();
-  queryDialogTable();
-};
-/*---unique End---*/
-
-// 搜索点击时表单回调
-const onSearch = (data: EmptyObjectType) => {
-  state.tableData.param = Object.assign({}, state.tableData.param, { ...data });
-  tableRef.value.pageReset();
-};
-// 新增点击时表单回调
-const handlerAdd = () => {
-  dialogRef.value.openDialog('add');
-};
-// 分页改变时回调
-const onTablePageChange = (page: TableDemoPageType) => {
-  state.tableData.param.pageNum = page.pageNum;
-  state.tableData.param.pageSize = page.pageSize;
-  getTableData();
-};
-// 拖动显示列排序回调
-const onSortHeader = (data: TableHeaderType[]) => {
-  state.tableData.header = data;
+    .catch(() => ElMessage.info('已取消删除'));
+}
+// 清除表格勾选数据
+const clearSelection = () => {
+  state.ids = [];
+  dataTableRef.value.clearSelection();
 };
 
-const openBatchImport = () => {
-  importExcelRef.value.openDialog();
-};
-// 页面加载时
 onMounted(() => {
-  // 初始化表格数据
-  getTableData();
-  // 初始化选择器数据
-  getSelectOptionsData();
+  getAllRole().then(({data}) => {
+    state.roleOptions = data;
+  })
+  handleQuery();
+  // 设置引导页相关数据
+  state.guideArr = getGuideData('course') as Step[];
 });
 </script>

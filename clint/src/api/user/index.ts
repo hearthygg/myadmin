@@ -8,7 +8,7 @@ import { ImportError } from '../auth/types';
  */
 export function getUserInfo(): AxiosPromise<UserInfo> {
   return request({
-    url: '/auth/info',
+    url: '/auth/user/info',
     method: 'get'
   });
 }
@@ -18,11 +18,11 @@ export function getUserInfo(): AxiosPromise<UserInfo> {
  *
  * @param queryParams
  */
-export function listUserPages(
+export function getUserPagesApi(
   queryParams: UserQuery
-): AxiosPromise<{total: number, userList: UserTable}> {
+): AxiosPromise<{total: number, list: UserTable[]}> {
   return request({
-    url: '/lmsWeb/auth/user/pages',
+    url: '/auth/user/getUserPages',
     method: 'get',
     params: queryParams
   });
@@ -33,9 +33,9 @@ export function listUserPages(
  *
  * @param userId
  */
-export function getUserForm(userId: number): AxiosPromise<{user: UserForm}> {
+export function getUserForm(userId: number): AxiosPromise<UserForm> {
   return request({
-    url: `/lmsWeb/auth/user/getUserById/${userId}`,
+    url: `/auth/user/getUserDetail/${userId}`,
     method: 'get'
   });
 }
@@ -45,27 +45,11 @@ export function getUserForm(userId: number): AxiosPromise<{user: UserForm}> {
  *
  * @param data
  */
-export function addUser(data: UpdateUser) {
-  let formData
-  if(data.avatar != '') {
-    formData = new FormData();
-    formData.append("file", data.avatar);
-  }
+export function addUser(data: UserForm) {
   return request({
-    url: '/lmsWeb/auth/user/saveUser',
+    url: '/auth/user/addUser',
     method: 'post',
-    params: data,
-    data: formData ? formData : '',
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded;charset=utf-8",
-    },
-    // 表单格式含有数组数据特殊处理
-    paramsSerializer: {
-      serialize: function(params) {
-        delete params.avatar
-        return  qs.stringify(params,{arrayFormat: 'indices'})
-      }
-    }
+    data,
   });
 }
 
@@ -75,25 +59,10 @@ export function addUser(data: UpdateUser) {
  * @param data
  */
 export function updateUser(data: UserForm) {
-  let formData
-  if(data.avatar != '') {
-    formData = new FormData();
-    formData.append("file", data.avatar);
-  }
   return request({
-    url: '/lmsWeb/auth/user/updateUser',
+    url: '/auth/user/updateUser',
     method: 'put',
-    params: data,
-    data: formData ? formData : '',
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded;charset=utf-8",
-    },
-    paramsSerializer: {
-      serialize: function(params) {
-        delete params.avatar
-        return  qs.stringify(params,{arrayFormat: 'indices'})
-      }
-    }
+    data,
   });
 }
 

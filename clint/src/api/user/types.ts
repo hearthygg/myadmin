@@ -15,11 +15,9 @@ export interface UserInfo {
  * 用户查询参数
  */
 export interface UserQuery extends PageQuery {
-  ugroup?: number; //用户类型
-  userName?: string; //用户账户
-  nickName?: string; //用户名称
-  deptId?: number; //所属部门id
-  claId?: number; //所在班级id
+  username?: string;
+  nickname?: string;
+  sex?: number;
 }
 
 /**
@@ -45,44 +43,47 @@ export interface UserType {
 export type UserPageResult = PageResult<UserType[]>;
 
 export interface UserTable {
+  /**用户id */
   userId: number;
-  userName: string;
-  nickName: string;
-  cardID: string;
-  uid: string;
-  deptName: string;
-  claName: string;
+  /**昵称 */
+  nickname: string;
+  /**用户账号 */
+  username: string;
+  /**邮箱 */
+  email: string;
+  /**性别 */
+  sex: string;
+  /**头像 */
+  avatar: string;
+  /**电话 */
+  telPhone: string;
 }
 /**
  * 用户表单类型声明
  */
 export interface UserForm {
-  userId: number | undefined; //用户id
-  nickName: string; //用户名
-  uid: string;
-  userName: string; //账号
-  cardID: string; //校园卡号
-  deptId: number; //部门id
-  claId: number; //班级id
-  ugroup: number; //用户类型
-  tel: string; //电话
-  roleIds: number[]; //角色集合
-  pwd: string; //密码
-  birthday: number;
-  sex: number;
-  avatar: string;
+  /**用户id */
+  userId?: number;
+  /**昵称 */
+  nickname: string;
+  /**用户账号 */
+  username: string;
+  /**邮箱 */
+  email?: string;
+  /**性别 */
+  sex?: string;
+  /**头像 */
+  avatar?: string;
+  /**电话 */
+  telPhone?: string;
+  /**用户角色 */
+  roleRemarks?: number[];
 }
 
 /* 新增/编辑用户表单信息 */
 export interface UpdateUser extends UserForm {
-  avatar: any; //头像
-  sex: number; //性别
-  birthday: number; //生日
-  newPassword: string;
   confirmNewPassword: string;
 }
-
-
 
 /**
  * 用户导入表单类型声明

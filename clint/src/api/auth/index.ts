@@ -73,7 +73,7 @@ export function getExamEnmuTypes(): AxiosPromise<examEnumType> {
  */
 export function getBussinerEnmuTypes(): AxiosPromise<businessEnumType> {
   return request({
-    url: `/lmsWeb/common/getCommonOptions`,
+    url: `/common/selectOptions`,
     method: 'get'
   });
 }

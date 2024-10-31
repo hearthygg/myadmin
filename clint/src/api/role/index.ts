@@ -1,6 +1,6 @@
 import request from '@/utils/request';
 import { AxiosPromise } from 'axios';
-import { RoleQuery, RolePageResult, RoleForm } from './types';
+import { RoleQuery, RolePageResult, RoleForm, Role } from './types';
 
 /**
  * 获取角色分页数据
@@ -9,9 +9,9 @@ import { RoleQuery, RolePageResult, RoleForm } from './types';
  */
 export function listRolePages(
   queryParams?: RoleQuery
-): AxiosPromise<RolePageResult> {
+): AxiosPromise<{total: number; list: Role[]}> {
   return request({
-    url: '/lmsWeb/auth/role/pages',
+    url: '/auth/role/getRolePages',
     method: 'get',
     params: queryParams
   });
@@ -37,9 +37,9 @@ export function listRoleOptions(
  *
  * @param queryParams
  */
-export function getRoleMenuIds(roleId: number): AxiosPromise<{menuIds: number[]}> {
+export function getRoleMenuIds(roleId: number): AxiosPromise<number[]> {
   return request({
-    url: '/lmsWeb/auth/role/getMenuIdsByRoleId/' + roleId,
+    url: '/auth/role/getRolePermissions/' + roleId,
     method: 'get'
   });
 }
@@ -54,9 +54,12 @@ export function updateRoleMenus(
   data: number[]
 ): AxiosPromise<any> {
   return request({
-    url: '/lmsWeb/auth/role/updateMenus/' + roleId,
+    url: '/auth/role/updateRolePermissions',
     method: 'put',
-    data: data
+    data: {
+      roleId: roleId,
+      permIds: data
+    }
   });
 }
 
@@ -79,7 +82,7 @@ export function getRoleDetail(id: number): AxiosPromise<{role: RoleForm}> {
  */
 export function addRole(data: RoleForm) {
   return request({
-    url: '/lmsWeb/auth/role/saveRole',
+    url: '/auth/role/addRole',
     method: 'post',
     data: data
   });
@@ -91,7 +94,7 @@ export function addRole(data: RoleForm) {
  */
 export function updateRole(data: RoleForm) {
   return request({
-    url: '/lmsWeb/auth/role/updateRole',
+    url: '/auth/role/updateRole',
     method: 'put',
     data: data
   });
@@ -110,9 +113,9 @@ export function deleteRoles(ids: string) {
 }
 
 /* 获取到所有的角色信息 */
-export function getAllRole(): AxiosPromise<{ roleOptions: SelectOptionType[]}> {
+export function getAllRole(): AxiosPromise<SelectOptionType[]> {
   return request({
-    url: '/lmsWeb/auth/role/roleOptions',
+    url: '/auth/role/roleOptions',
     method: 'get',
   });
 }

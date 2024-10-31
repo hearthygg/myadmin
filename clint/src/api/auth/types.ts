@@ -212,6 +212,11 @@ export interface businessEnumType {
   onlineOption: SelectOptionType[];
   /**选择状态 */
   chooseOption: SelectOptionType[];
+  menuTypeOptions: SelectOptionType[];
+  yesOrNoOptions: SelectOptionType[];
+  trueOrFalseOptions: SelectOptionType[];
+  /**性别选择器数据 */
+  sexOptions: SelectOptionType[];
 }
 // 批量导入报错信息
 export interface ImportError {
